@@ -24,7 +24,7 @@ module Parser
         tags = Parser.unwrap(data[3].text.split("3>"))
         description = Parser.unwrap(array_data.last.text)
 
-        parsed_job = Job.new(job_title, logo_url, company, description, apply_url, tags)
+        parsed_job = Job.new(job_title, logo_url, company, description, apply_url, tags, 'remote-ok')
         parsed_jobs << parsed_job
       rescue
         next
@@ -32,6 +32,44 @@ module Parser
     end
 
     parsed_jobs
+  end
+
+  def self.get_jobs_from_landing_jobs
+    jobs = Array.new
+
+    path = "https://landing.jobs/jobs/search.json"
+    page = 1
+    loop do
+      url = "#{path}?page=#{page}"
+      page += 1
+
+      response = Net::HTTP.get(URI(url))
+      json = JSON.parse(response)
+
+      last_page = json['last_page?']
+
+      array_jobs_data = json['offers']
+      array_jobs_data.each do |job_data|
+        job_title = job_data['title']
+        company_logo_url = job_data['company_logo_url']
+        company_name = job_data['company_name']
+        job_description = ""
+        apply_url = job_data['url']
+        
+        tags = Array.new
+        skills_data = job_data['skills']
+        skills_data.each do |skill_data|
+          tags << skill_data['name']
+        end
+
+        job = Job.new(job_title, company_logo_url, company_name, job_description, apply_url, tags, 'landing-jobs')
+        jobs << job
+      end
+      
+      break if last_page
+    end
+
+    jobs
   end
 
   private
