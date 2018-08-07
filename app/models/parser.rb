@@ -22,8 +22,8 @@ module Parser
         job_title = Parser.unwrap(data[1].css("a h2").text)
         company = Parser.unwrap(data[1].css("a h3").text)
         tags = Parser.unwrap(data[3].text.split("3>"))
-        description = Parser.unwrap(array_data.last.text)
-
+        description = array_data.last.css('div.description div').to_s.split('<div>')[1].split('<p style="text-align:center">').first
+        description.gsub! /(\<br\>)/, '\n'
         parsed_job = Job.new(job_title, logo_url, company, description, apply_url, tags, 'remote-ok')
         parsed_jobs << parsed_job
       rescue
