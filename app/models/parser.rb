@@ -72,6 +72,29 @@ module Parser
     jobs
   end
 
+  def self.get_jobs_from_cryptojobs
+    jobs = Array.new
+
+    url = "https://cryptojobslist.com/job/filter?remote=true"
+
+    response = Net::HTTP.get(URI(url))
+    json = JSON.parse(response)
+    json.each do |job_data|
+      title = job_data["jobTitle"]
+      company_logo_url = job_data["companyLogo"]
+      company_name = job_data["companyName"]
+      description = job_data["jobDescription"]
+      apply_url = job_data["canonicalURL"]
+      tags = Array.new
+      category = job_data["category"]
+      tags << category unless category.nil?
+
+      job = Job.new(title, company_logo_url, company_name, description, apply_url, tags, "cryptojobslist")
+      jobs << job
+    end
+    jobs
+  end
+
   private
 
   def self.unwrap(value)
