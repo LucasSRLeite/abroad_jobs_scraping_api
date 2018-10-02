@@ -18,11 +18,11 @@ module Parser
           logo_url = Parser.unwrap(data[0].css("a").text)
         end
 
-        apply_url = Parser.unwrap("#{url}#{array_data.first.attributes["data-url"].text}")
-        job_title = Parser.unwrap(data[1].css("a h2").text)
-        company = Parser.unwrap(data[1].css("a h3").text)
-        tags = Parser.unwrap(data[3].text.split("3>"))
-        description = array_data.last.css('div.description div').to_s.split('<div>')[1].split('<p style="text-align:center">').first
+        apply_url = Parser.unwrap("#{url}#{array_data.first.attributes["data-url"].text}").strip
+        job_title = Parser.unwrap(data[1].css("a h2").text).strip
+        company = Parser.unwrap(data[1].css("a h3").text).strip
+        tags = Parser.unwrap(data[3].text.split("3>")).map { |e| e.strip }.reject { |e| e.empty? }
+        description = array_data.last.css('div.description div').to_s.split('<div>')[1].split('<p style="text-align:center">').first.strip rescue ""
         description.gsub! /(\<br\>)/, '\n'
         parsed_job = Job.new(job_title, logo_url, company, description, apply_url, tags, 'remote-ok')
         parsed_jobs << parsed_job

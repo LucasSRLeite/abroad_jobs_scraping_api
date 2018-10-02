@@ -3,8 +3,8 @@ class JobsController < ApplicationController
     jobs = Array.new
     
     jobs << Parser.get_jobs_from_remoteok
-    jobs << Parser.get_jobs_from_landing_jobs
-    jobs << Parser.get_jobs_from_cryptojobs
+    # jobs << Parser.get_jobs_from_landing_jobs
+    # jobs << Parser.get_jobs_from_cryptojobs
     
     render json: jobs
   end
