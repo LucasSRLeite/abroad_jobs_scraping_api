@@ -11,19 +11,20 @@ module Parser
     jobs.each_slice(2) do |array_data|
       begin
         data = array_data.first.css("td")
-
+        
         begin
-          logo_url = data[0].css("a").children.first.attributes["data-src"].text
+          logo_url = data[0].children[1].children[1].values[3]
+          logo_url = data[0].css("a").children.first.attributes["data-src"].text.strip if logo_url.nil?
         rescue
-          logo_url = Parser.unwrap(data[0].css("a").text)
+          logo_url = Parser.unwrap(data[0].css("a").text).strip
         end
 
+        # ...
         apply_url = Parser.unwrap("#{url}#{array_data.first.attributes["data-url"].text}").strip
         job_title = Parser.unwrap(data[1].css("a h2").text).strip
         company = Parser.unwrap(data[1].css("a h3").text).strip
-        tags = Parser.unwrap(data[3].text.split("3>")).map { |e| e.strip }.reject { |e| e.empty? }
-        description = array_data.last.css('div.description div').to_s.split('<div>')[1].split('<p style="text-align:center">').first.strip rescue ""
-        description.gsub! /(\<br\>)/, '\n'
+        tags = Parser.unwrap(data[3].text.split("\n")).map { |e| e.strip }.reject { |e| e.empty? || e == "digital nomad" }
+        description = array_data.last.css('div.description div').to_s.gsub("<div class=\"markdown\">\n", "").gsub('</div>', "").strip
         parsed_job = Job.new(job_title, logo_url, company, description, apply_url, tags, 'remote-ok')
         parsed_jobs << parsed_job
       rescue
